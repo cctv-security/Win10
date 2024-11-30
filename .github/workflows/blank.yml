@@ -1,24 +1,57 @@
-name: Run Virtual Machine with QEMU
+lname: Run Virtual Machine with QEMU and Expose VNC via SSH
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # يسمح بتشغيل العمل يدويًا
 
 jobs:
   run-vm:
     runs-on: ubuntu-latest
+
     steps:
+      # 1. تثبيت QEMU
       - name: Install QEMU
-        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 wget
 
+      # 2. تنزيل ملف QCOW2
       - name: Download QCOW2 file
-        run: wget https://github.com/cctv-security/Win10/raw/main/Windows10.qcow2 -O Windows10.qcow2
+        run: |
+          wget https://github.com/cctv-security/Win10/raw/main/Windows10.qcow2 -O Windows10.qcow2
 
-      - name: Run Virtual Machine with VNC
+      # 3. تثبيت أدوات SSH
+      - name: Install SSH
+        run: |
+          sudo apt-get install -y openssh-client
+
+      # 4. تكوين SSH مع Serveo
+      - name: SSH to Serveo and expose VNC
+        run: |
+          # إضافة مفتاح SSH الخاص بـ Serveo
+          mkdir -p ~/.ssh
+          echo "$SERVEO_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # استخدام SSH مع Serveo لتوجيه المنفذ 5900 (VNC) إلى رابط عام
+          ssh -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
+
+      # 5. تشغيل النظام الوهمي باستخدام QEMU
+      - name: Run Virtual Machine without KVM
         run: |
           qemu-system-x86_64 \
           -hda Windows10.qcow2 \
-          -m 4G \
-          -enable-kvm \
+          -m 2G \
+          -smp 2 \
           -vga std \
-          -display vnc=127.0.0.1:0 \
-          -cpu host -smp 2
+          -nographic \
+          -display vnc=127.0.0.1:5900 &
+
+      # 6. الانتظار قليلاً حتى يتاح اتصال VNC
+      - name: Wait for VNC to be available
+        run: sleep 10
+
+      # 7. عرض رسالة حول VNC
+      - name: Provide VNC Info
+        run: |
+          echo "The VM is running. Use VNC to connect to the system."
+          echo "You can access VNC using the link provided by Serveo."
