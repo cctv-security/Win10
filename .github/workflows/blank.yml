@@ -1,4 +1,4 @@
-name: Run Virtual Machine with QEMU and Expose VNC via SSH
+name: Run Virtual Machine with QEMU and Expose VNC via ngrok
 
 on:
   workflow_dispatch:  # يسمح بتشغيل العمل يدويًا
@@ -24,22 +24,40 @@ jobs:
         run: |
           sudo apt-get install -y openssh-client
 
-      # 4. تكوين SSH مع Serveo
-      - name: Setup SSH Agent and Connect to Serveo
+      # 4. تثبيت ngrok
+      - name: Install ngrok
+        run: |
+          sudo apt-get install -y unzip
+          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip ngrok-stable-linux-amd64.zip
+          sudo mv ngrok /usr/local/bin
+
+      # 5. تسجيل الدخول إلى ngrok باستخدام AuthToken
+      - name: Authenticate ngrok
+        run: |
+          echo "$NGROK_AUTH_TOKEN" | ngrok authtoken
+
+      # 6. تشغيل ngrok لتوجيه المنفذ 5900
+      - name: Start ngrok
+        run: |
+          ngrok tcp 5900 &
+
+      # 7. إعداد SSH Agent فقط (بدون تحميل المفتاح مباشرة)
+      - name: Setup SSH Agent and Connect to ngrok
         run: |
           # إعداد المفتاح الخاص لـ SSH
           mkdir -p ~/.ssh
           echo "$SERVEO_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          # تحميل المفتاح إلى SSH Agent
+          # تشغيل ssh-agent
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
-          # الاتصال بـ Serveo لتوجيه المنفذ 5900
-          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
+          # الاتصال بـ ngrok لتوجيه المنفذ 5900
+          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 ngrok.io &
 
-      # 5. تشغيل النظام الوهمي باستخدام QEMU
+      # 8. تشغيل النظام الوهمي باستخدام QEMU
       - name: Run Virtual Machine without KVM
         run: |
           qemu-system-x86_64 \
@@ -50,12 +68,12 @@ jobs:
           -nographic \
           -display vnc=127.0.0.1:5900 &
 
-      # 6. الانتظار قليلاً حتى يتاح اتصال VNC
+      # 9. الانتظار قليلاً حتى يتاح اتصال VNC
       - name: Wait for VNC to be available
         run: sleep 10
 
-      # 7. عرض رسالة حول VNC
-      - name: Provide VNC Info
+      # 10. عرض معلومات حول ngrok
+      - name: Provide ngrok Info
         run: |
           echo "The VM is running. Use VNC to connect to the system."
-          echo "You can access VNC using the link provided by Serveo."
+          echo "You can access VNC using the link provided by ngrok."
