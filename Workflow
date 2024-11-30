@@ -1,0 +1,25 @@
+name: Run VM with Graphics
+
+on: [push]
+
+jobs:
+  run-vm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install QEMU and Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 xvfb x11vnc fluxbox
+
+      - name: Download QCOW2 file
+        run: wget https://github.com/cctv-security/Win10/raw/main/Windows10.qcow2 -O Windows10.qcow2
+
+      - name: Start Virtual Machine
+        run: |
+          Xvfb :1 -screen 0 1024x768x16 &
+          export DISPLAY=:1
+          fluxbox &
+          qemu-system-x86_64 -hda Windows10.qcow2 -m 4G -enable-kvm -vga std -display vnc=:0
+
+      - name: Start VNC Server
+        run: x11vnc -display :1 -nopw -listen localhost -forever &
