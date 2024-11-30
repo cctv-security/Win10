@@ -35,7 +35,7 @@ jobs:
       # 5. تسجيل الدخول إلى ngrok باستخدام AuthToken
       - name: Authenticate ngrok
         run: |
-          echo "$NGROK_AUTH_TOKEN" | ngrok authtoken
+          echo "2pZQQsvqVCxsWZFK2f8Bbqd8BYq_6XtrQ9Fd2Pk9vMm92cckD" | ngrok authtoken
 
       # 6. تشغيل ngrok لتوجيه المنفذ 5900
       - name: Start ngrok
