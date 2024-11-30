@@ -1,0 +1,31 @@
+name: Run VM with Graphics
+
+on:
+  workflow_dispatch:  # لتشغيل العمل يدويًا
+
+jobs:
+  run-vm:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-system-x86 xvfb x11vnc fluxbox wget
+
+    - name: Download QCOW2 file
+      run: |
+        wget https://github.com/cctv-security/Win10/raw/main/Windows10.qcow2 -O Windows10.qcow2
+
+    - name: Start Virtual Machine with VNC
+      run: |
+        Xvfb :1 -screen 0 1024x768x16 &
+        export DISPLAY=:1
+        fluxbox &
+        qemu-system-x86_64 -hda Windows10.qcow2 -m 4G -enable-kvm -vga std -display vnc=127.0.0.1:0 &
+        sleep 10  # انتظار النظام للتشغيل
+
+    - name: Start VNC Server
+      run: |
+        x11vnc -display :1 -nopw -listen 0.0.0.0 -forever &
+        echo "VNC Server started. Use port 5900 to connect."
