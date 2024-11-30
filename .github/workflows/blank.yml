@@ -25,15 +25,19 @@ jobs:
           sudo apt-get install -y openssh-client
 
       # 4. تكوين SSH مع Serveo
-      - name: SSH to Serveo and expose VNC
+      - name: Setup SSH Agent and Connect to Serveo
         run: |
-          # إضافة مفتاح SSH الخاص بـ Serveo
+          # إعداد المفتاح الخاص لـ SSH
           mkdir -p ~/.ssh
           echo "$SERVEO_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          # استخدام SSH مع Serveo لتوجيه المنفذ 5900 (VNC) إلى رابط عام
-          ssh -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
+          # تحميل المفتاح إلى SSH Agent
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/id_rsa
+
+          # الاتصال بـ Serveo لتوجيه المنفذ 5900
+          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
 
       # 5. تشغيل النظام الوهمي باستخدام QEMU
       - name: Run Virtual Machine without KVM
