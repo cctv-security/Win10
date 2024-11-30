@@ -1,4 +1,4 @@
-lname: Run Virtual Machine with QEMU and Expose VNC via SSH
+name: Run Virtual Machine with QEMU and Expose VNC via SSH
 
 on:
   workflow_dispatch:  # يسمح بتشغيل العمل يدويًا
