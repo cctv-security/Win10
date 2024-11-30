@@ -1,3 +1,4 @@
+
 name: Run Virtual Machine with QEMU and Expose VNC via ngrok
 
 on:
@@ -55,7 +56,7 @@ jobs:
           ssh-add ~/.ssh/id_rsa
 
           # الاتصال بـ ngrok لتوجيه المنفذ 5900
-          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 ngrok.io &
+          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
 
       # 8. تشغيل النظام الوهمي باستخدام QEMU
       - name: Run Virtual Machine without KVM
