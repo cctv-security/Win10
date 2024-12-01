@@ -3,8 +3,8 @@ name: Run Telegram Bot
 on:
   push:
     branches:
-      - main  # You can change this to the branch you want to trigger the workflow on.
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+      - main  # تغيير هذا إلى الفرع الذي ترغب في تشغيل الـ Workflow عليه
+  workflow_dispatch:  # يتيح تشغيل الـ Workflow يدويًا من واجهة GitHub
 
 jobs:
   run-bot:
@@ -17,16 +17,16 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Specify the version of Node.js you want to use (e.g., '16')
+        node-version: '16'  # اختر الإصدار الذي ترغب به (مثلًا '16')
 
     - name: Install dependencies
       run: |
-        npm install  # Installs dependencies from package.json
+        npm install  # يقوم بتثبيت جميع الحزم المطلوبة
 
     - name: Start Telegram Bot
       env:
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # GitHub secret for bot token
-        ADMIN_ID: ${{ secrets.ADMIN_ID }}    # GitHub secret for admin ID
-        API_KEY: ${{ secrets.API_KEY }}      # GitHub secret for API key
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # سر البوت الخاص بك
+        ADMIN_ID: ${{ secrets.ADMIN_ID }}    # ID الخاص بالمسؤول
+        API_KEY: ${{ secrets.API_KEY }}      # مفتاح الـ API الخاص بك
       run: |
-        node index.js  # Replace with your actual bot file name
+        node index.mjs  # قم بتعديل الاسم إذا قمت بتغيير اسم الملف إلى index.mjs
