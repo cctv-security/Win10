@@ -3,8 +3,8 @@ name: Run Telegram Bot
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # You can change this to the branch you want to trigger the workflow on.
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
   run-bot:
@@ -17,15 +17,16 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16' # Specify your Node.js version
+        node-version: '16'  # Specify the version of Node.js you want to use (e.g., '16')
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        npm install  # Installs dependencies from package.json
 
     - name: Start Telegram Bot
       env:
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-        ADMIN_ID: ${{ secrets.ADMIN_ID }}
-        API_KEY: ${{ secrets.API_KEY }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # GitHub secret for bot token
+        ADMIN_ID: ${{ secrets.ADMIN_ID }}    # GitHub secret for admin ID
+        API_KEY: ${{ secrets.API_KEY }}      # GitHub secret for API key
       run: |
-        node your-bot-file.js
+        node your-bot-file.js  # Replace with your actual bot file name
