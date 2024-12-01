@@ -3,7 +3,7 @@ import { Telegraf } from 'telegraf';
 import fetch from 'node-fetch';
 import g4f from 'g4f';
 
-const bot = new Telegraf('6679199332:AAHqGIBwKE1_9XmK6fIANglEZQ78yzvHn-Q');
+const bot = new Telegraf('7843013455:AAHoxAjuDvqqithc92FHEheSy4rmnlIOeX8');
 const adminId = 927899812;
 
 bot.start((ctx) => {
