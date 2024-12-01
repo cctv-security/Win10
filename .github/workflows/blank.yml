@@ -1,79 +1,31 @@
-name: Run Virtual Machine with QEMU and Expose VNC via ngrok
+name: Run Telegram Bot
 
 on:
-  workflow_dispatch:  # يسمح بتشغيل العمل يدويًا
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  run-vm:
+  run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. تثبيت QEMU
-      - name: Install QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86 wget
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      # 2. تنزيل ملف QCOW2
-      - name: Download QCOW2 file
-        run: |
-          wget https://github.com/cctv-security/Win10/raw/main/Windows10.qcow2 -O Windows10.qcow2
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16' # Specify your Node.js version
 
-      # 3. تثبيت أدوات SSH
-      - name: Install SSH
-        run: |
-          sudo apt-get install -y openssh-client
+    - name: Install dependencies
+      run: npm install
 
-      # 4. تثبيت ngrok
-      - name: Install ngrok
-        run: |
-          sudo apt-get install -y unzip
-          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-          unzip ngrok-stable-linux-amd64.zip
-          sudo mv ngrok /usr/local/bin
-
-      # 5. تسجيل الدخول إلى ngrok باستخدام AuthToken
-      - name: Authenticate ngrok
-        run: |
-          ngrok authtoken 2pZQQsvqVCxsWZFK2f8Bbqd8BYq_6XtrQ9Fd2Pk9vMm92cckD
-
-      # 6. تشغيل ngrok لتوجيه المنفذ 5900
-      - name: Start ngrok
-        run: |
-          ngrok tcp 5900 &
-
-      # 7. إعداد SSH Agent فقط (بدون تحميل المفتاح مباشرة)
-      - name: Setup SSH Agent and Connect to ngrok
-        run: |
-          # إعداد المفتاح الخاص لـ SSH
-          mkdir -p ~/.ssh
-          echo "$SERVEO_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-          # تشغيل ssh-agent
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/id_rsa
-
-          # الاتصال بـ ngrok لتوجيه المنفذ 5900
-          ssh -T -o StrictHostKeyChecking=no -R 0:localhost:5900 serveo.net &
-
-      # 8. تشغيل النظام الوهمي باستخدام QEMU
-      - name: Run Virtual Machine without KVM
-        run: |
-          qemu-system-x86_64 \
-          -hda Windows10.qcow2 \
-          -m 2G \
-          -smp 2 \
-          -vga std \
-          -nographic \
-          -display vnc=127.0.0.1:5900 &
-
-      # 9. الانتظار قليلاً حتى يتاح اتصال VNC
-      - name: Wait for VNC to be available
-        run: sleep 10
-
-      # 10. عرض معلومات حول ngrok
-      - name: Provide ngrok Info
-        run: |
-          echo "The VM is running. Use VNC to connect to the system."
-          echo "You can access VNC using the link provided by ngrok."
+    - name: Start Telegram Bot
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        ADMIN_ID: ${{ secrets.ADMIN_ID }}
+        API_KEY: ${{ secrets.API_KEY }}
+      run: |
+        node your-bot-file.js
