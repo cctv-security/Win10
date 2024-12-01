@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
 const fetch = require('node-fetch');
 const g4f = require('g4f');
-const bot = new Telegraf('6679199332:AAHqGIBwKE1_9XmK6fIANglEZQ78yzvHn-Q');
+const bot = new Telegraf('7843013455:AAHoxAjuDvqqithc92FHEheSy4rmnlIOeX8');
 
 const adminId = 927899812;
 
