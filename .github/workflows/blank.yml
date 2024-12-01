@@ -29,4 +29,4 @@ jobs:
         ADMIN_ID: ${{ secrets.ADMIN_ID }}    # GitHub secret for admin ID
         API_KEY: ${{ secrets.API_KEY }}      # GitHub secret for API key
       run: |
-        node your-bot-file.js  # Replace with your actual bot file name
+        node index.js  # Replace with your actual bot file name
