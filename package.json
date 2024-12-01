@@ -1,7 +1,7 @@
 {
   "name": "telegram-bot",
   "version": "1.0.0",
-  "description": "A Telegram bot powered by Telegraf",
+  "description": "A Telegram bot using Telegraf",
   "main": "index.js",
   "scripts": {
     "start": "index.js"
