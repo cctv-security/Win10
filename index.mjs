@@ -1,7 +1,5 @@
-
 import { Telegraf } from 'telegraf';
-import fetch from 'node-fetch';
-import g4f from 'g4f';
+import axios from 'axios';
 
 const bot = new Telegraf('7843013455:AAHoxAjuDvqqithc92FHEheSy4rmnlIOeX8');
 const adminId = 927899812;
@@ -14,7 +12,7 @@ bot.command('sms', (ctx) => {
     if (ctx.from.id === adminId) {
         ctx.reply('الرجاء إدخال كلمة المرور:');
         bot.on('text', async (ctx) => {
-            if (ctx.message.text === 'your_password') {
+            if (ctx.message.text === '33221') {
                 await ctx.reply('أدخل اسم أو رقم المرسل:');
                 bot.on('text', async (ctx) => {
                     const sender = ctx.message.text;
@@ -59,13 +57,37 @@ bot.command('sms', (ctx) => {
     }
 });
 
+// تعديل القسم الذي يستخدم g4f إلى OpenAI باستخدام axios
 bot.on('text', async (ctx) => {
     const message = ctx.message.text;
-    const response = await g4f.chat({
-        model: 'gpt-4',
-        messages: [{ role: 'user', content: message }]
-    });
-    ctx.reply(response);
+    
+    const options = {
+        method: 'POST',
+        url: 'https://gpt-4o.p.rapidapi.com/chat/completions',
+        headers: {
+            'x-rapidapi-key': 'c1cbbdec0amsh946bd0afd3ac951p16722ejsnac0630e39161',
+            'x-rapidapi-host': 'gpt-4o.p.rapidapi.com',
+            'Content-Type': 'application/json',
+        },
+        data: {
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'user',
+                    content: message
+                }
+            ]
+        }
+    };
+
+    try {
+        const response = await axios.request(options);
+        const result = response.data;
+        ctx.reply(result.choices[0].message.content);  // الرد برسالة GPT-4
+    } catch (error) {
+        console.error(error);
+        ctx.reply('حدث خطأ أثناء معالجة الرسالة.');
+    }
 });
 
 bot.launch();
